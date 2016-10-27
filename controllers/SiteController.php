@@ -8,6 +8,8 @@ use yii\web\Controller;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
+use app\models\Users;
+use yii\data\ActiveDataProvider;
 
 class SiteController extends Controller
 {
@@ -121,5 +123,25 @@ class SiteController extends Controller
     public function actionAbout()
     {
         return $this->render('about');
+    }
+
+    public function actionTest()
+    {
+        $model = new Users;
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            $model->save();
+            Yii::$app->session->setFlash('success', "Form to send!");
+
+            $dataProvider = new ActiveDataProvider([
+                'query' => $model->find()
+            ]);
+            return $this->render('userList', [
+                'searchModel' => $model,
+                'dataProvider' => $dataProvider,
+            ]);
+        }
+
+        return $this->render('userForm', ['model' => $model]);
     }
 }
